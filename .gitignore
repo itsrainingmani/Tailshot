@@ -1,0 +1,29 @@
+# Chrome extensions
+*.crx
+*.pem
+*.key
+*-manifest.json
+
+# Go binaries
+/bin/
+/obj/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.a
+*.o
+*.prof
+*.cache
+*.tmp
+*.log
+*.coverage
+*.coverprofile
+*.testresults
+*.testcache
+*.buildinfo
+
+*.reg
