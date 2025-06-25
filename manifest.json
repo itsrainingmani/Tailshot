@@ -1,8 +1,8 @@
 {
 	"manifest_version": 3,
-	"name": "Tailscale Image Sender",
+	"name": "Tailshot",
 	"version": "1.0",
-	"description": "Send images to Tailscale devices",
+	"description": "Send images to your Tailscale devices",
 	"permissions": ["contextMenus", "nativeMessaging", "notifications"],
 	"host_permissions": ["<all_urls>"],
 	"background": {

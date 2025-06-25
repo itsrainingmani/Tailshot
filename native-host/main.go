@@ -41,6 +41,7 @@ type Device struct {
 	Name   string `json:"name"`
 	ID     string `json:"id"`
 	Online bool   `json:"online"`
+	OS     string `json:"os"`
 }
 
 type TaildropTargetStatus int
@@ -68,6 +69,7 @@ type TailscalePeer struct {
 	ID             string               `json:"ID"`
 	HostName       string               `json:"HostName"`
 	DNSName        string               `json:"DNSName"` // eg: fetch.llama-byzantine.ts.net
+	OS             string               `json:"OS"`
 	Online         bool                 `json:"Online"`
 	ExitNodeOption bool                 `json:"ExitNodeOption"`
 	TaildropTarget TaildropTargetStatus `json:"TaildropTarget"`
@@ -198,6 +200,23 @@ func (nh *NativeHost) getDevices() {
 	nh.sendMessage(Response{Success: true, Data: devices})
 }
 
+// normalizeOS normalizes OS names to standard values for icon mapping
+func (nh *NativeHost) normalizeOS(os string) string {
+	switch strings.ToLower(os) {
+	case "ios":
+		return "ios"
+	case "macos", "darwin":
+		return "macos"
+	case "windows":
+		return "windows"
+	case "linux":
+		return "linux"
+	default:
+		nh.logger.Printf("Unknown OS: %s, defaulting to linux", os)
+		return "linux" // Default fallback
+	}
+}
+
 // filterOnlineDevices filters and returns only online, non-exit-node, taildrop enabled devices
 func (nh *NativeHost) filterOnlineDevices(peers map[string]TailscalePeer) []Device {
 	var devices []Device
@@ -214,6 +233,7 @@ func (nh *NativeHost) filterOnlineDevices(peers map[string]TailscalePeer) []Devi
 				Name:   deviceName,
 				ID:     peer.ID,
 				Online: peer.Online,
+				OS:     nh.normalizeOS(peer.OS), // Include normalized OS
 			})
 		}
 	}

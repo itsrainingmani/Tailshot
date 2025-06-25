@@ -86,8 +86,26 @@
       transition: background-color 0.2s;
     }
 
+    .device-os-icon {
+      width: 16px;
+      height: 16px;
+      margin-left: auto;
+      color: #666;
+      flex-shrink: 0;
+      transition: color 0.2s;
+    }
+
+    .device-os-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
     .device-item:hover {
       background-color: rgb(250 249 248);
+
+      >.device-os-icon {
+        color: black;
+      }
     }
 
     .device-status {
@@ -113,7 +131,7 @@
 <body>
   <div class="header">
     <img src="icons/icon128.png" alt="Tailscale">
-    <h2>Tailscale Image Forwarder</h2>
+    <h2>TailShot</h2>
   </div>
 
   <div class="image-info">
