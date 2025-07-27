@@ -1,0 +1,99 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build Native Host
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            goos: windows
+            goarch: amd64
+            binary_name: tailscale_sender_host.exe
+            output_name: tailscale_sender_host_windows_amd64.exe
+          - os: macos-latest
+            goos: darwin
+            goarch: amd64
+            binary_name: tailscale_sender_host
+            output_name: tailscale_sender_host_darwin_amd64
+          - os: macos-latest
+            goos: darwin
+            goarch: arm64
+            binary_name: tailscale_sender_host
+            output_name: tailscale_sender_host_darwin_arm64
+          - os: ubuntu-latest
+            goos: linux
+            goarch: amd64
+            binary_name: tailscale_sender_host
+            output_name: tailscale_sender_host_linux_amd64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Build binary
+        working-directory: ./native-host
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          go build -o ${{ matrix.binary_name }} -ldflags="-w -s" .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.output_name }}
+          path: ./native-host/${{ matrix.binary_name }}
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: false
+          body: |
+            ## Tailscale Image Sender Release
+            
+            This release includes native host binaries for:
+            - Windows (amd64)
+            - macOS (Intel/amd64) 
+            - macOS (Apple Silicon/arm64)
+            - Linux (amd64)
+            
+            ### Installation
+            
+            1. Download the appropriate binary for your platform
+            2. Place it in the correct directory (see README for details)
+            3. Make it executable (macOS/Linux): `chmod +x tailscale_sender_host`
+            4. Follow the installation instructions in the README
+          files: |
+            ./artifacts/tailscale_sender_host_windows_amd64.exe/tailscale_sender_host.exe
+            ./artifacts/tailscale_sender_host_darwin_amd64/tailscale_sender_host
+            ./artifacts/tailscale_sender_host_darwin_arm64/tailscale_sender_host
+            ./artifacts/tailscale_sender_host_linux_amd64/tailscale_sender_host
