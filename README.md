@@ -1,6 +1,6 @@
-# Tailscale Image Sender
+# Tailshot - A Tailscale based image sender
 
-<https://img.shields.io/badge/vibe_coded-green?logo=claude>
+![vibecoded](https://img.shields.io/badge/vibe_coded-100%25-green?logo=claude)
 
 A browser extension that allows you to send images between Tailscale devices using Taildrop.
 
@@ -229,20 +229,6 @@ GOOS=darwin GOARCH=arm64 go build -o tailscale_sender_host -ldflags="-w -s" .
 # Linux
 GOOS=linux GOARCH=amd64 go build -o tailscale_sender_host -ldflags="-w -s" .
 ```
-
-### Extension
-
-The extension consists of HTML/JavaScript files and doesn't require building. Simply load the extension directory in your browser's developer mode.
-
-## Security
-
-- The extension only communicates with the local native host via the browser's native messaging API
-- The native host only executes Tailscale commands and doesn't accept arbitrary command execution
-- Images are temporarily saved to the system's temp directory and immediately deleted after sending
-
-## License
-
-[Add your license here]
 
 ## Contributing
 
