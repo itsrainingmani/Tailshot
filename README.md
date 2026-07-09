@@ -234,3 +234,13 @@ GOOS=linux GOARCH=amd64 go build -o tailscale_sender_host -ldflags="-w -s" .
 GOOS=darwin GOARCH=arm64 go build -o tailscale_sender_host -ldflags="-w -s" .
 GOOS=windows GOARCH=amd64 go build -o tailscale_sender_host.exe -ldflags="-w -s" .
 ```
+
+## Chrome Web Store
+
+Build the Chrome Web Store upload package:
+
+```powershell
+.\installer\chrome-webstore\package.ps1
+```
+
+The upload zip is written to `dist\chrome-webstore\`. Store listing copy, permission justifications, and privacy answers are in `installer\chrome-webstore\SUBMISSION.md`. The privacy policy source is [PRIVACY.md](PRIVACY.md).

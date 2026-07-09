@@ -58,7 +58,9 @@ jobs:
 
   release:
     name: Create Release
-    needs: build
+    needs:
+      - build
+      - chrome-webstore
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -78,13 +80,18 @@ jobs:
           draft: false
           prerelease: false
           body: |
-            ## Tailscale Image Sender Release
+            ## Tailshot Release
             
             This release includes native host binaries for:
             - Windows (amd64)
             - macOS (Intel/amd64) 
             - macOS (Apple Silicon/arm64)
             - Linux (amd64)
+            
+            It also includes Chrome Web Store release artifacts:
+            - Chrome Web Store upload zip
+            - Windows reviewer/native-host package
+            - Store screenshot and promo tile
             
             ### Installation
             
@@ -97,3 +104,44 @@ jobs:
             ./artifacts/tailscale_sender_host_darwin_amd64/tailscale_sender_host
             ./artifacts/tailscale_sender_host_darwin_arm64/tailscale_sender_host
             ./artifacts/tailscale_sender_host_linux_amd64/tailscale_sender_host
+            ./artifacts/tailshot-chrome-webstore/tailshot-chrome-webstore-1.0.zip
+            ./artifacts/tailshot-windows-reviewer-package/tailshot-windows-1.0.zip
+            ./artifacts/tailshot-store-assets/**/screenshot-1280x800.png
+            ./artifacts/tailshot-store-assets/**/small-promo-440x280.png
+
+  chrome-webstore:
+    name: Build Chrome Web Store Package
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Build and validate release artifacts
+        shell: pwsh
+        run: .\installer\chrome-webstore\validate-release.ps1 -Build
+
+      - name: Upload Chrome Web Store package
+        uses: actions/upload-artifact@v4
+        with:
+          name: tailshot-chrome-webstore
+          path: ./dist/chrome-webstore/tailshot-chrome-webstore-1.0.zip
+
+      - name: Upload Windows reviewer package
+        uses: actions/upload-artifact@v4
+        with:
+          name: tailshot-windows-reviewer-package
+          path: ./dist/tailshot-windows-1.0.zip
+
+      - name: Upload store assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: tailshot-store-assets
+          path: |
+            ./store-assets/chrome-webstore/screenshot-1280x800.png
+            ./store-assets/chrome-webstore/small-promo-440x280.png

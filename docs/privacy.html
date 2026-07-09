@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tailshot Privacy Policy</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f8fb;
+      --fg: #17202a;
+      --muted: #5f6b7a;
+      --card: #ffffff;
+      --border: #d9e0ea;
+      --accent: #00b887;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f141b;
+        --fg: #eef4f8;
+        --muted: #a9b4c0;
+        --card: #171f2a;
+        --border: #2d3a4a;
+      }
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 16px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 20px;
+    }
+
+    article {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+    }
+
+    h1, h2 {
+      line-height: 1.2;
+      margin: 0 0 16px;
+    }
+
+    h1 {
+      font-size: 34px;
+    }
+
+    h2 {
+      border-top: 1px solid var(--border);
+      font-size: 20px;
+      margin-top: 28px;
+      padding-top: 24px;
+    }
+
+    p, ul {
+      margin: 0 0 16px;
+    }
+
+    .updated {
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    a {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <article>
+      <h1>Tailshot Privacy Policy</h1>
+      <p class="updated">Last updated: July 9, 2026</p>
+
+      <p>Tailshot is a browser extension for sending user-selected images to the user's own Tailscale devices through Taildrop.</p>
+
+      <h2>Data Tailshot Handles</h2>
+      <p>Tailshot handles the following data only after the user right-clicks an image, chooses "Send with Tailscale", and grants access to the selected image's origin if Chrome asks:</p>
+      <ul>
+        <li>The selected image URL</li>
+        <li>The selected image bytes</li>
+        <li>The destination device name returned by the local Tailscale CLI</li>
+      </ul>
+      <p>Tailshot does not collect browsing history, search history, account information, location, payment information, health information, personal communications, or authentication credentials.</p>
+
+      <h2>How Data Is Used</h2>
+      <p>Tailshot uses the selected image URL to download that image in the extension background service worker. Tailshot requests host access at send time for the selected image's origin instead of requiring access to every site at install time. The image data is then sent to the locally installed Tailshot native host, which streams it into the local Tailscale CLI for Taildrop transfer.</p>
+      <p>Tailshot does not upload image data to Tailshot-operated servers. Tailshot does not sell data, use data for advertising, use data for creditworthiness, or share data with analytics providers.</p>
+
+      <h2>Local Native Host</h2>
+      <p>Tailshot requires a companion native host installed on the user's computer. The native host receives image data from the extension and invokes <code>tailscale file cp</code> locally. The native host writes diagnostic messages to <code>debug.log</code> on the user's computer for troubleshooting.</p>
+
+      <h2>Third-Party Services</h2>
+      <p>Tailshot depends on Tailscale being installed and configured by the user. File transfer is performed by Tailscale Taildrop according to the user's Tailscale configuration and Tailscale's own policies.</p>
+
+      <h2>Data Retention</h2>
+      <p>Tailshot does not retain selected image data after the send operation completes. The native host streams image data to the Tailscale CLI and does not intentionally store image files on disk.</p>
+
+      <h2>Contact</h2>
+      <p>For questions or issues, use the project's <a href="https://github.com/itsrainingmani/tailscale_image_sender">GitHub repository</a>.</p>
+    </article>
+  </main>
+</body>
+</html>

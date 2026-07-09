@@ -117,6 +117,8 @@ async function sendToDevice(device) {
 	deviceListEl.style.display = 'none';
 
 	try {
+		await requestImageHostPermission(imageUrl);
+
 		const response = await sendRuntimeMessage({
 			action: 'send_image',
 			imageUrl: imageUrl,
@@ -134,7 +136,7 @@ async function sendToDevice(device) {
 			}, 2000);
 		}
 	} catch (error) {
-		showStatus('Failed to send image', 'error');
+		showStatus(error.message || 'Failed to send image', 'error');
 	}
 }
 
@@ -143,6 +145,30 @@ function showStatus(message, type = 'loading') {
 	statusEl.textContent = message;
 	statusEl.className = `status ${type}`;
 	statusEl.style.display = 'block';
+}
+
+async function requestImageHostPermission(url) {
+	const origin = getOriginPattern(url);
+	if (!origin || typeof chrome === 'undefined' || !chrome.permissions?.request) {
+		return;
+	}
+
+	const granted = await chrome.permissions.request({ origins: [origin] });
+	if (!granted) {
+		throw new Error('Permission to download this image was not granted');
+	}
+}
+
+function getOriginPattern(url) {
+	try {
+		const parsedUrl = new URL(url);
+		if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+			return null;
+		}
+		return `${parsedUrl.protocol}//${parsedUrl.host}/*`;
+	} catch (e) {
+		return null;
+	}
 }
 
 function sendRuntimeMessage(message) {
