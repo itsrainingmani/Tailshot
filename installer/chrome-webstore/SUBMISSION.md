@@ -60,13 +60,13 @@ English
 Website:
 
 ```text
-https://itsrainingmani.github.io/tailscale_image_sender/
+https://itsrainingmani.github.io/Tailshot/
 ```
 
 Support URL:
 
 ```text
-https://github.com/itsrainingmani/tailscale_image_sender/issues
+https://github.com/itsrainingmani/Tailshot/issues
 ```
 
 Detailed description:
@@ -143,11 +143,11 @@ Privacy policy:
 ```text
 Use one of these URLs after the release prep changes are pushed:
 
-https://itsrainingmani.github.io/tailscale_image_sender/privacy.html
+https://itsrainingmani.github.io/Tailshot/privacy.html
 
 or:
 
-https://github.com/itsrainingmani/tailscale_image_sender/blob/main/PRIVACY.md
+https://github.com/itsrainingmani/Tailshot/blob/main/PRIVACY.md
 ```
 
 The GitHub Pages URL requires Pages to be enabled for the repository's `docs/` folder.

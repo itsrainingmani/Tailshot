@@ -46,13 +46,13 @@ Unlisted
 Homepage URL:
 
 ```text
-https://itsrainingmani.github.io/tailscale_image_sender/
+https://itsrainingmani.github.io/Tailshot/
 ```
 
 Support URL:
 
 ```text
-https://github.com/itsrainingmani/tailscale_image_sender/issues
+https://github.com/itsrainingmani/Tailshot/issues
 ```
 
 ## 3. Privacy
@@ -60,13 +60,13 @@ https://github.com/itsrainingmani/tailscale_image_sender/issues
 Use one of these privacy policy URL options after the changes are pushed:
 
 ```text
-https://itsrainingmani.github.io/tailscale_image_sender/privacy.html
+https://itsrainingmani.github.io/Tailshot/privacy.html
 ```
 
 or:
 
 ```text
-https://github.com/itsrainingmani/tailscale_image_sender/blob/main/PRIVACY.md
+https://github.com/itsrainingmani/Tailshot/blob/main/PRIVACY.md
 ```
 
 The GitHub Pages URL requires Pages to be enabled for the repository's `docs/` folder.

@@ -117,7 +117,7 @@ Chrome's dashboard requires the developer account owner to complete account, pay
 Use [PRIVACY.md](../../PRIVACY.md) as the source text for the Chrome Web Store privacy policy. A GitHub Pages-ready HTML copy is available at [docs/privacy.html](../../docs/privacy.html). If GitHub Pages is enabled for the repository's `docs/` folder, use:
 
 ```text
-https://itsrainingmani.github.io/tailscale_image_sender/privacy.html
+https://itsrainingmani.github.io/Tailshot/privacy.html
 ```
 
 Otherwise, use the GitHub URL for `PRIVACY.md` after pushing the release prep changes.
@@ -127,13 +127,13 @@ Otherwise, use the GitHub URL for `PRIVACY.md` after pushing the release prep ch
 If GitHub Pages is enabled for the repository's `docs/` folder, use:
 
 ```text
-Homepage: https://itsrainingmani.github.io/tailscale_image_sender/
-Install help: https://itsrainingmani.github.io/tailscale_image_sender/install.html
-Privacy: https://itsrainingmani.github.io/tailscale_image_sender/privacy.html
+Homepage: https://itsrainingmani.github.io/Tailshot/
+Install help: https://itsrainingmani.github.io/Tailshot/install.html
+Privacy: https://itsrainingmani.github.io/Tailshot/privacy.html
 ```
 
 Use GitHub issues for support:
 
 ```text
-https://github.com/itsrainingmani/tailscale_image_sender/issues
+https://github.com/itsrainingmani/Tailshot/issues
 ```

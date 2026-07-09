@@ -152,7 +152,7 @@ if ($manifest.short_name -ne 'Tailshot') {
 	throw 'Chrome package manifest short_name must be Tailshot.'
 }
 
-if ($manifest.homepage_url -ne 'https://github.com/itsrainingmani/tailscale_image_sender') {
+if ($manifest.homepage_url -ne 'https://github.com/itsrainingmani/Tailshot') {
 	throw 'Chrome package manifest homepage_url is missing or unexpected.'
 }
 
