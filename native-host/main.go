@@ -10,13 +10,13 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
 // Constants
 const (
 	LogFileName      = "debug.log"
-	TempFilePattern  = "tailscale-sender-*"
 	DataURLSeparator = ","
 )
 
@@ -77,7 +77,8 @@ type TailscalePeer struct {
 
 // NativeHost handles native messaging operations
 type NativeHost struct {
-	logger *log.Logger
+	logger  *log.Logger
+	logFile *os.File
 }
 
 // NewNativeHost creates a new native host instance
@@ -89,12 +90,13 @@ func NewNativeHost() (*NativeHost, error) {
 
 	logger := log.New(logFile, "", log.LstdFlags|log.Lshortfile)
 
-	// Ensure log file is closed when process exits
-	go func() {
-		defer logFile.Close()
-	}()
+	return &NativeHost{logger: logger, logFile: logFile}, nil
+}
 
-	return &NativeHost{logger: logger}, nil
+func (nh *NativeHost) close() {
+	if nh.logFile != nil {
+		nh.logFile.Close()
+	}
 }
 
 // logError logs an error and sends it as response
@@ -178,11 +180,50 @@ func (nh *NativeHost) executeCommand(name string, args ...string) ([]byte, error
 	return output, nil
 }
 
+func (nh *NativeHost) executeCommandWithInput(input io.Reader, name string, args ...string) ([]byte, error) {
+	nh.logger.Printf("Executing with stdin: %s %s", name, strings.Join(args, " "))
+
+	cmd := exec.Command(name, args...)
+	cmd.Stdin = input
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		if len(output) > 0 {
+			nh.logger.Printf("Command output: %s", string(output))
+		}
+		return nil, fmt.Errorf("command failed: %w", err)
+	}
+
+	return output, nil
+}
+
+func tailscaleCommand() string {
+	if path, err := exec.LookPath("tailscale"); err == nil {
+		return path
+	}
+
+	if runtime.GOOS != "windows" {
+		return "tailscale"
+	}
+
+	for _, baseDir := range []string{os.Getenv("ProgramFiles"), os.Getenv("ProgramFiles(x86)")} {
+		if baseDir == "" {
+			continue
+		}
+
+		candidate := filepath.Join(baseDir, "Tailscale", "tailscale.exe")
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate
+		}
+	}
+
+	return "tailscale"
+}
+
 // getDevices retrieves the list of Tailscale devices
 func (nh *NativeHost) getDevices() {
 	nh.logger.Printf("Getting Tailscale devices")
 
-	output, err := nh.executeCommand("tailscale", "status", "--json")
+	output, err := nh.executeCommand(tailscaleCommand(), "status", "--json")
 	if err != nil {
 		nh.logError("Failed to get Tailscale status", err)
 		return
@@ -194,8 +235,8 @@ func (nh *NativeHost) getDevices() {
 		return
 	}
 
-	devices := nh.filterOnlineDevices(status.Peer)
-	nh.logger.Printf("Found %d online devices", len(devices))
+	devices := nh.filterTaildropDevices(status.Peer)
+	nh.logger.Printf("Found %d Taildrop-capable devices", len(devices))
 
 	nh.sendMessage(Response{Success: true, Data: devices})
 }
@@ -217,11 +258,12 @@ func (nh *NativeHost) normalizeOS(os string) string {
 	}
 }
 
-// filterOnlineDevices filters and returns only online, non-exit-node, taildrop enabled devices
-func (nh *NativeHost) filterOnlineDevices(peers map[string]TailscalePeer) []Device {
+// filterTaildropDevices filters and returns non-exit-node peers that can receive Taildrop files.
+func (nh *NativeHost) filterTaildropDevices(peers map[string]TailscalePeer) []Device {
 	var devices []Device
 	for _, peer := range peers {
-		if peer.Online && !peer.ExitNodeOption && peer.TaildropTarget == TaildropTargetAvailable {
+		canReceiveTaildrop := peer.TaildropTarget == TaildropTargetAvailable || peer.TaildropTarget == TaildropTargetOffline
+		if canReceiveTaildrop && !peer.ExitNodeOption {
 			peerDnsName := strings.Split(peer.DNSName, ".")
 			deviceName := ""
 			if len(peerDnsName) == 0 {
@@ -257,45 +299,37 @@ func (nh *NativeHost) validateSendFileRequest(deviceName, imageData, fileName st
 	return nil
 }
 
-// decodeImageData decodes base64 image data from data URL
-func (nh *NativeHost) decodeImageData(imageData string) ([]byte, error) {
+// imageDataReader returns a stream that decodes base64 image data from a data URL.
+func (nh *NativeHost) imageDataReader(imageData string) (io.Reader, error) {
 	parts := strings.SplitN(imageData, DataURLSeparator, 2)
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("invalid data URL format")
 	}
 
-	data, err := base64.StdEncoding.DecodeString(parts[1])
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode base64: %w", err)
+	if !strings.HasPrefix(strings.ToLower(parts[0]), "data:") {
+		return nil, fmt.Errorf("invalid data URL header")
 	}
 
-	return data, nil
+	return base64.NewDecoder(base64.StdEncoding, strings.NewReader(parts[1])), nil
 }
 
-// createTempFile creates a temporary file with decoded data
-func (nh *NativeHost) createTempFile(data []byte, fileName string, imageType string) (string, error) {
-	ext := filepath.Ext(fileName)
-	if len(ext) == 0 {
-		// image type is extracted from Blob.type
+func sanitizeFileName(fileName string, imageType string) string {
+	name := filepath.Base(fileName)
+	name = strings.TrimSpace(name)
+	if name == "." || name == string(filepath.Separator) || name == "" {
+		name = "image"
+	}
+
+	if filepath.Ext(name) == "" {
 		extFromImageType := strings.Split(imageType, "/")
-		if len(extFromImageType) > 1 {
-			ext = "." + extFromImageType[1]
+		if len(extFromImageType) > 1 && extFromImageType[1] != "" {
+			name += "." + strings.Split(extFromImageType[1], ";")[0]
 		} else {
-			ext = ".jpg"
+			name += ".jpg"
 		}
 	}
-	tmpFile, err := os.CreateTemp("", TempFilePattern+ext)
-	if err != nil {
-		return "", fmt.Errorf("failed to create temp file: %w", err)
-	}
-	defer tmpFile.Close()
 
-	if _, err := tmpFile.Write(data); err != nil {
-		os.Remove(tmpFile.Name())
-		return "", fmt.Errorf("failed to write temp file: %w", err)
-	}
-
-	return tmpFile.Name(), nil
+	return name
 }
 
 // sendFile sends a file to a Tailscale device
@@ -308,28 +342,15 @@ func (nh *NativeHost) sendFile(deviceName, imageData, fileName string, imageType
 		return
 	}
 
-	// Decode image data
-	data, err := nh.decodeImageData(imageData)
+	imageReader, err := nh.imageDataReader(imageData)
 	if err != nil {
-		nh.logError("Failed to decode image data", err)
+		nh.logError("Failed to prepare image data", err)
 		return
 	}
 
-	// Create temporary file
-	tmpFilePath, err := nh.createTempFile(data, fileName, imageType)
-	if err != nil {
-		nh.logError("Failed to create temporary file", err)
-		return
-	}
-	defer func() {
-		if err := os.Remove(tmpFilePath); err != nil {
-			nh.logger.Printf("WARNING: Failed to remove temp file: %v", err)
-		}
-	}()
-
-	// Send file via Tailscale
+	safeFileName := sanitizeFileName(fileName, imageType)
 	destination := deviceName + ":"
-	if _, err := nh.executeCommand("tailscale", "file", "cp", tmpFilePath, destination); err != nil {
+	if _, err := nh.executeCommandWithInput(imageReader, tailscaleCommand(), "file", "cp", "--name", safeFileName, "-", destination); err != nil {
 		nh.logError("Failed to send file via Tailscale", err)
 		return
 	}
@@ -377,6 +398,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create native host: %v", err)
 	}
+	defer host.close()
 
 	host.run()
 }

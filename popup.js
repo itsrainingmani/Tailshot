@@ -43,23 +43,23 @@ async function loadDevices() {
 	showStatus('Loading devices...');
 
 	try {
-		const response = await chrome.runtime.sendMessage({
+		const response = await sendRuntimeMessage({
 			action: 'get_devices',
 		});
 
-		if (!response.success) {
-			showStatus(`Error: ${response.error}`, 'error');
+		if (!response?.success) {
+			showStatus(`Error: ${response?.error || 'No response from extension'}`, 'error');
 			return;
 		}
 
-		const onlineDevices = response.data.filter((d) => d.online);
+		const devices = response.data || [];
 
-		if (onlineDevices.length === 0) {
-			showStatus('No online devices found', 'error');
+		if (devices.length === 0) {
+			showStatus('No Taildrop devices found', 'error');
 			return;
 		}
 
-		displayDevices(onlineDevices);
+		displayDevices(devices);
 		statusEl.style.display = 'none';
 	} catch (error) {
 		showStatus('Failed to load devices', 'error');
@@ -73,11 +73,23 @@ function displayDevices(devices) {
 	devices.forEach((device) => {
 		const deviceEl = document.createElement('div');
 		deviceEl.className = 'device-item';
-		deviceEl.innerHTML = `
-			<div class="device-status"></div>
-			<div class="device-name">${device.name}</div>
-			<div class="device-os-icon">${getOSIcon(device.os)}</div>
-		`;
+		if (!device.online) {
+			deviceEl.classList.add('offline');
+			deviceEl.title = 'Tailscale reports this device as offline; Taildrop will still try to send.';
+		}
+
+		const statusEl = document.createElement('div');
+		statusEl.className = 'device-status';
+
+		const nameEl = document.createElement('div');
+		nameEl.className = 'device-name';
+		nameEl.textContent = device.name;
+
+		const osIconEl = document.createElement('div');
+		osIconEl.className = 'device-os-icon';
+		osIconEl.innerHTML = getOSIcon(device.os);
+
+		deviceEl.append(statusEl, nameEl, osIconEl);
 
 		deviceEl.onclick = () => sendToDevice(device);
 		deviceListEl.appendChild(deviceEl);
@@ -88,7 +100,6 @@ function displayDevices(devices) {
 
 // Get OS icon based on device OS
 function getOSIcon(os) {
-	console.log(os);
 	if (!os) return OS_ICONS.default;
 
 	if (os.includes('windows')) return OS_ICONS.windows;
@@ -106,17 +117,17 @@ async function sendToDevice(device) {
 	deviceListEl.style.display = 'none';
 
 	try {
-		const response = await chrome.runtime.sendMessage({
+		const response = await sendRuntimeMessage({
 			action: 'send_image',
 			imageUrl: imageUrl,
 			device: device,
 		});
 
-		if (response.success) {
-			showStatus('✓ Sent successfully!', 'success');
+		if (response?.success) {
+			showStatus('Sent successfully!', 'success');
 			setTimeout(() => window.close(), 1500);
 		} else {
-			showStatus(`Error: ${response.error}`, 'error');
+			showStatus(`Error: ${response?.error || 'No response from extension'}`, 'error');
 			setTimeout(() => {
 				statusEl.style.display = 'none';
 				deviceListEl.style.display = 'block';
@@ -132,6 +143,23 @@ function showStatus(message, type = 'loading') {
 	statusEl.textContent = message;
 	statusEl.className = `status ${type}`;
 	statusEl.style.display = 'block';
+}
+
+function sendRuntimeMessage(message) {
+	if (typeof browser !== 'undefined' && browser.runtime?.sendMessage) {
+		return browser.runtime.sendMessage(message);
+	}
+
+	return new Promise((resolve, reject) => {
+		chrome.runtime.sendMessage(message, (response) => {
+			const lastError = chrome.runtime.lastError;
+			if (lastError) {
+				reject(new Error(lastError.message));
+				return;
+			}
+			resolve(response);
+		});
+	});
 }
 
 // Utility

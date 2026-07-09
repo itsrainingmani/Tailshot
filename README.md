@@ -1,40 +1,79 @@
-# Tailshot - A Tailscale based image sender
+# Tailshot - Tailscale image sender
 
-![vibecoded](https://img.shields.io/badge/vibe_coded-100%25-green?logo=claude)
-
-A browser extension that allows you to send images between Tailscale devices using Taildrop.
+Tailshot is a browser extension that sends images from a web page to your own Tailscale devices using Taildrop.
 
 ## Features
 
-- Send images from your browser to any online Tailscale device
-- Supports drag-and-drop, copy-paste, and file selection
-- Shows device status with OS-specific icons
-- Works with Chrome, Edge, and other Chromium-based browsers
+- Right-click any image in the browser and send it with Taildrop
+- Shows Taildrop-capable devices reported by Tailscale
+- Marks devices that Tailscale currently reports as offline, while still allowing Taildrop to try the send
+- Uses the Tailscale CLI's supported `tailscale file cp --name <file> - <device>:` flow from the native host
+- Works best in Chrome, Edge, and other modern Chromium browsers; Firefox support requires native messaging setup with the extension ID in this manifest
 
-## Installation
+## How It Works
 
-### Prerequisites
+1. The extension adds a context menu item for images.
+2. Selecting the item opens Tailshot's device picker.
+3. The background worker downloads the image and sends it to the native host.
+4. The native host streams the image into `tailscale file cp`.
+5. Tailscale sends the file with Taildrop.
 
-1. **Tailscale** must be installed and running on your system
-2. You must be logged into Tailscale
-3. The devices you want to send files to must have Taildrop enabled
+Taildrop must be enabled in your tailnet. Tailscale currently limits Taildrop to devices you own, and both devices must be running Tailscale.
 
-### Step 1: Download the Native Host Binary
+## Requirements
 
-Download the appropriate native host binary for your platform from the [latest release](https://github.com/itsrainingmani/tailscale_image_sender/releases/latest):
+- Tailscale installed and logged in on the sending computer
+- Taildrop enabled for the tailnet
+- The Tailscale CLI available as `tailscale` on the native host's PATH
+- A native messaging host manifest registered for your browser
 
-- **Windows**: `tailscale_sender_host_windows_amd64.exe`
-- **macOS (Intel)**: `tailscale_sender_host_darwin_amd64`
-- **macOS (Apple Silicon)**: `tailscale_sender_host_darwin_arm64`
-- **Linux**: `tailscale_sender_host_linux_amd64`
+## Install
 
-### Step 2: Install the Native Host
+### Windows Quick Install
 
-#### Windows
+Build or download `tailscale_sender_host.exe`, load or install the extension, then run the per-user installer with the extension ID shown by the browser:
 
-1. Create a directory for the extension (e.g., `C:\tailscale-image-sender`)
-2. Copy the downloaded `tailscale_sender_host_windows_amd64.exe` to this directory and rename it to `tailscale_sender_host.exe`
-3. Create a file named `nmh-manifest.json` in the same directory with the following content:
+```powershell
+.\installer\windows\install.ps1 -ExtensionId YOUR_EXTENSION_ID
+```
+
+The script copies the native host to `%LOCALAPPDATA%\Programs\Tailshot`, writes the native messaging manifest, and registers Chrome and Edge under `HKCU`. No admin prompt or manual registry editing is required.
+
+To create a distributable Windows zip:
+
+```powershell
+.\installer\windows\package.ps1
+```
+
+See [installer/windows/README.md](installer/windows/README.md) for the recommended Chrome Web Store or Edge Add-ons release flow.
+
+### 1. Build or Download the Native Host
+
+Build from source:
+
+```bash
+cd native-host
+go build -o tailscale_sender_host -ldflags="-w -s" .
+```
+
+On Windows, build:
+
+```powershell
+cd native-host
+go build -o tailscale_sender_host.exe -ldflags="-w -s" .
+```
+
+### 2. Register the Native Host
+
+The native host name must be:
+
+```text
+com.bitandbang.tailscale_image_sender
+```
+
+#### Windows Manual Registration
+
+The installer script above is preferred. If you want to register the native host manually, create a folder such as `C:\tailscale-image-sender`, copy `tailscale_sender_host.exe` into it, then create `nmh-manifest.json`:
 
 ```json
 {
@@ -48,50 +87,33 @@ Download the appropriate native host binary for your platform from the [latest r
 }
 ```
 
-4. Create a registry file `install.reg` with the following content (update the path):
+Register it for Chrome or Edge:
 
 ```reg
 Windows Registry Editor Version 5.00
 
-; For Google Chrome
 [HKEY_CURRENT_USER\Software\Google\Chrome\NativeMessagingHosts\com.bitandbang.tailscale_image_sender]
 @="C:\\tailscale-image-sender\\nmh-manifest.json"
 
-; For Microsoft Edge
 [HKEY_CURRENT_USER\Software\Microsoft\Edge\NativeMessagingHosts\com.bitandbang.tailscale_image_sender]
 @="C:\\tailscale-image-sender\\nmh-manifest.json"
 ```
 
-5. Double-click `install.reg` to add the registry entry
-
 #### macOS
 
-1. Create the native messaging hosts directory (choose based on your browser):
+Copy the binary somewhere stable and make it executable:
 
 ```bash
-# For Google Chrome
-mkdir -p ~/Library/Application Support/Google/Chrome/NativeMessagingHosts/
-
-# For Microsoft Edge
-mkdir -p ~/Library/Application Support/Microsoft Edge/NativeMessagingHosts/
-
-# For Chromium
-mkdir -p ~/Library/Application Support/Chromium/NativeMessagingHosts/
+mkdir -p "$HOME/Library/Application Support/tailscale-image-sender"
+cp tailscale_sender_host "$HOME/Library/Application Support/tailscale-image-sender/tailscale_sender_host"
+chmod +x "$HOME/Library/Application Support/tailscale-image-sender/tailscale_sender_host"
 ```
 
-2. Copy the downloaded binary to a suitable location:
+Create the browser native messaging manifest, for example for Chrome:
 
 ```bash
-mkdir -p ~/Library/Application Support/tailscale-image-sender
-cp tailscale_sender_host_darwin_* ~/Library/Application Support/tailscale-image-sender/tailscale_sender_host
-chmod +x ~/Library/Application Support/tailscale-image-sender/tailscale_sender_host
-```
-
-3. Create the manifest file (adjust the path based on your browser from step 1):
-
-```bash
-# Replace "Google/Chrome" with "Microsoft Edge" or "Chromium" as needed
-cat > ~/Library/Application Support/Google/Chrome/NativeMessagingHosts/com.bitandbang.tailscale_image_sender.json << EOF
+mkdir -p "$HOME/Library/Application Support/Google/Chrome/NativeMessagingHosts"
+cat > "$HOME/Library/Application Support/Google/Chrome/NativeMessagingHosts/com.bitandbang.tailscale_image_sender.json" << EOF
 {
   "name": "com.bitandbang.tailscale_image_sender",
   "description": "Host for sending files via Tailscale.",
@@ -104,33 +126,22 @@ cat > ~/Library/Application Support/Google/Chrome/NativeMessagingHosts/com.bitan
 EOF
 ```
 
+For Edge, use `~/Library/Application Support/Microsoft Edge/NativeMessagingHosts/`.
+
 #### Linux
 
-1. Create the native messaging hosts directory (choose based on your browser):
-
-```bash
-# For Google Chrome
-mkdir -p ~/.config/google-chrome/NativeMessagingHosts/
-
-# For Chromium
-mkdir -p ~/.config/chromium/NativeMessagingHosts/
-
-# For Microsoft Edge
-mkdir -p ~/.config/microsoft-edge/NativeMessagingHosts/
-```
-
-2. Copy the downloaded binary to a suitable location:
+Copy the binary somewhere stable and make it executable:
 
 ```bash
 mkdir -p ~/.local/share/tailscale-image-sender
-cp tailscale_sender_host_linux_amd64 ~/.local/share/tailscale-image-sender/tailscale_sender_host
+cp tailscale_sender_host ~/.local/share/tailscale-image-sender/tailscale_sender_host
 chmod +x ~/.local/share/tailscale-image-sender/tailscale_sender_host
 ```
 
-3. Create the manifest file (adjust the path based on your browser from step 1):
+Create the browser native messaging manifest, for example for Chrome:
 
 ```bash
-# Replace "google-chrome" with "chromium" or "microsoft-edge" as needed
+mkdir -p ~/.config/google-chrome/NativeMessagingHosts
 cat > ~/.config/google-chrome/NativeMessagingHosts/com.bitandbang.tailscale_image_sender.json << EOF
 {
   "name": "com.bitandbang.tailscale_image_sender",
@@ -144,92 +155,82 @@ cat > ~/.config/google-chrome/NativeMessagingHosts/com.bitandbang.tailscale_imag
 EOF
 ```
 
-### Step 3: Install the Browser Extension
+For Chromium, use `~/.config/chromium/NativeMessagingHosts/`. For Edge, use `~/.config/microsoft-edge/NativeMessagingHosts/`.
 
-1. Clone this repository or download the source code
-2. Open Chrome/Edge and navigate to `chrome://extensions/`
-3. Enable "Developer mode" in the top right
-4. Click "Load unpacked" and select the extension directory
-5. Note the extension ID that appears
+### 3. Load the Extension
 
-### Step 4: Update the Native Host Manifest
+1. Open `chrome://extensions/` or `edge://extensions/`.
+2. Enable developer mode.
+3. Choose "Load unpacked".
+4. Select this repository folder.
+5. Copy the extension ID shown by the browser.
+6. Replace `YOUR_EXTENSION_ID` in the native messaging manifest.
 
-1. Replace `YOUR_EXTENSION_ID` in the `nmh-manifest.json` (Windows) or `com.bitandbang.tailscale_image_sender.json` (macOS/Linux) file with your actual extension ID
-2. For Windows, you may need to update and re-run the registry file if you already installed it
-
-### Step 5: Verify Installation
-
-1. Click the extension icon in your browser
-2. You should see a list of your online Tailscale devices
-3. Try sending an image to verify everything works
+After editing the native messaging manifest, restart the browser.
 
 ## Usage
 
-### Sending Images
+1. Right-click an image in the browser.
+2. Select "Send with Tailscale".
+3. Choose the destination device.
 
-1. Click the extension icon to open the popup
-2. Select a device from the list
-3. Send an image using one of these methods:
-   - **Drag and drop**: Drag an image file onto the drop zone
-   - **Copy and paste**: Copy an image (from a webpage or file) and paste with Ctrl+V/Cmd+V
-   - **File selection**: Click "Select Image" to browse for a file
+If a site blocks direct image fetches, Tailshot will show the HTTP or content-type error instead of sending an error page as a file.
 
-### Supported Formats
+## Browser Compatibility
 
-The extension supports common image formats including:
+The manifest includes both `background.service_worker` and `background.scripts`. Modern Chromium browsers use the service worker. Firefox can use the background script fallback, but Firefox native messaging manifests use `allowed_extensions` rather than Chromium's `allowed_origins`.
 
-- JPEG/JPG
-- PNG
-- GIF
-- WebP
-- BMP
+Firefox native host manifest example:
+
+```json
+{
+  "name": "com.bitandbang.tailscale_image_sender",
+  "description": "Host for sending files via Tailscale.",
+  "path": "/absolute/path/to/tailscale_sender_host",
+  "type": "stdio",
+  "allowed_extensions": [
+    "tailshot@bitandbang.com"
+  ]
+}
+```
 
 ## Troubleshooting
 
-### Extension shows "Failed to connect to native host"
+### Failed to connect to native host
 
-1. Verify the native host binary is in the correct location
-2. Check that the path in the manifest file is correct
-3. Ensure the binary has execute permissions (macOS/Linux)
-4. Check that the extension ID in the manifest matches your installed extension
+- Confirm the native host manifest is in the browser-specific native messaging directory.
+- Confirm the manifest points to the real native host binary path.
+- Confirm the extension ID matches `allowed_origins` for Chromium or `allowed_extensions` for Firefox.
+- On macOS and Linux, confirm the native host binary is executable.
 
-### No devices showing up
+### No devices appear
 
-1. Ensure Tailscale is running: `tailscale status`
-2. Verify you're logged in to Tailscale
-3. Check that other devices are online and have Taildrop enabled
+- Run `tailscale status` and confirm Tailscale is connected.
+- Confirm Taildrop is enabled for the tailnet.
+- Confirm the target devices are yours and support Taildrop.
+- Tagged devices and devices owned by other users cannot receive Taildrop files.
 
-### Debug logs
+### Sends fail
 
-The native host creates a `debug.log` file in its directory. Check this file for error messages if you're experiencing issues.
+- Run `tailscale file cp --targets` to confirm Tailscale sees Taildrop targets.
+- Check that the `tailscale` command is available on the native host's PATH.
+- Check `debug.log` next to the native host process working directory.
 
-## Building from Source
+## Development
 
-### Native Host
+Format and test the native host:
 
 ```bash
 cd native-host
-go build -o tailscale_sender_host -ldflags="-w -s" .
+go fmt ./...
+go test ./...
 ```
 
-On Windows, the output will be `tailscale_sender_host.exe`.
-
-To build for different platforms:
+Build release binaries with the desired target platform:
 
 ```bash
-# Windows
-GOOS=windows GOARCH=amd64 go build -o tailscale_sender_host.exe -ldflags="-w -s" .
-
-# macOS (Intel)
-GOOS=darwin GOARCH=amd64 go build -o tailscale_sender_host -ldflags="-w -s" .
-
-# macOS (Apple Silicon)
-GOOS=darwin GOARCH=arm64 go build -o tailscale_sender_host -ldflags="-w -s" .
-
-# Linux
+cd native-host
 GOOS=linux GOARCH=amd64 go build -o tailscale_sender_host -ldflags="-w -s" .
+GOOS=darwin GOARCH=arm64 go build -o tailscale_sender_host -ldflags="-w -s" .
+GOOS=windows GOARCH=amd64 go build -o tailscale_sender_host.exe -ldflags="-w -s" .
 ```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit issues and pull requests.
