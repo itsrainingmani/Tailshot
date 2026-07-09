@@ -28,6 +28,8 @@ Upload these listing assets:
 
 ```text
 store-assets\chrome-webstore\screenshot-1280x800.png
+store-assets\chrome-webstore\screenshot-device-picker-1280x800.png
+store-assets\chrome-webstore\screenshot-local-transfer-1280x800.png
 store-assets\chrome-webstore\small-promo-440x280.png
 ```
 
