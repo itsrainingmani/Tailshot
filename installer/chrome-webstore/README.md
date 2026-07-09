@@ -137,3 +137,15 @@ Use GitHub issues for support:
 ```text
 https://github.com/itsrainingmani/Tailshot/issues
 ```
+
+If GitHub Pages is not enabled yet, use the repository URL as the Chrome Web Store homepage:
+
+```text
+https://github.com/itsrainingmani/Tailshot
+```
+
+Use the pushed markdown privacy policy as the safest dashboard privacy URL:
+
+```text
+https://github.com/itsrainingmani/Tailshot/blob/main/PRIVACY.md
+```

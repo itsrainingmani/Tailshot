@@ -60,7 +60,7 @@ English
 Website:
 
 ```text
-https://itsrainingmani.github.io/Tailshot/
+https://github.com/itsrainingmani/Tailshot
 ```
 
 Support URL:
@@ -141,16 +141,16 @@ No remote code is used. All extension code is packaged in the submitted extensio
 Privacy policy:
 
 ```text
-Use one of these URLs after the release prep changes are pushed:
-
-https://itsrainingmani.github.io/Tailshot/privacy.html
-
-or:
+Use this verified GitHub URL:
 
 https://github.com/itsrainingmani/Tailshot/blob/main/PRIVACY.md
 ```
 
-The GitHub Pages URL requires Pages to be enabled for the repository's `docs/` folder.
+Only use the GitHub Pages privacy URL if Pages is enabled for the repository's `docs/` folder and the URL opens in a logged-out/private browser window:
+
+```text
+https://itsrainingmani.github.io/Tailshot/privacy.html
+```
 
 ## Testing Instructions
 

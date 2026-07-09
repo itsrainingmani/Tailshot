@@ -46,7 +46,7 @@ Unlisted
 Homepage URL:
 
 ```text
-https://itsrainingmani.github.io/Tailshot/
+https://github.com/itsrainingmani/Tailshot
 ```
 
 Support URL:
@@ -57,19 +57,17 @@ https://github.com/itsrainingmani/Tailshot/issues
 
 ## 3. Privacy
 
-Use one of these privacy policy URL options after the changes are pushed:
-
-```text
-https://itsrainingmani.github.io/Tailshot/privacy.html
-```
-
-or:
+Use this verified privacy policy URL:
 
 ```text
 https://github.com/itsrainingmani/Tailshot/blob/main/PRIVACY.md
 ```
 
-The GitHub Pages URL requires Pages to be enabled for the repository's `docs/` folder.
+Optional GitHub Pages privacy URL, only after Pages is enabled for the repository's `docs/` folder and the URL opens in a logged-out/private browser window:
+
+```text
+https://itsrainingmani.github.io/Tailshot/privacy.html
+```
 
 Data declarations:
 
