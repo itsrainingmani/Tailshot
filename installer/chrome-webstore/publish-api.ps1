@@ -16,12 +16,18 @@ param(
 	[Parameter(Mandatory = $true)]
 	[string] $RefreshToken,
 
-	[string] $PackagePath = (Join-Path (Resolve-Path (Join-Path $PSScriptRoot '..\..')) 'dist\chrome-webstore\tailshot-chrome-webstore-1.0.zip'),
+	[string] $PackagePath,
 
 	[switch] $Publish
 )
 
 $ErrorActionPreference = 'Stop'
+
+if (!$PackagePath) {
+	$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+	$manifestVersion = (Get-Content -Raw -LiteralPath (Join-Path $repoRoot 'manifest.json') | ConvertFrom-Json).version
+	$PackagePath = Join-Path $repoRoot "dist\chrome-webstore\tailshot-chrome-webstore-$manifestVersion.zip"
+}
 
 if (!(Test-Path -LiteralPath $PackagePath)) {
 	throw "Package not found: $PackagePath"

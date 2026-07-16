@@ -246,6 +246,8 @@ func (nh *NativeHost) normalizeOS(os string) string {
 	switch strings.ToLower(os) {
 	case "ios":
 		return "ios"
+	case "android":
+		return "android"
 	case "macos", "darwin":
 		return "macos"
 	case "windows":

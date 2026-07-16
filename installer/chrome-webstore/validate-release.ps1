@@ -7,10 +7,12 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
-$ChromeZip = Join-Path $RepoRoot 'dist\chrome-webstore\tailshot-chrome-webstore-1.0.zip'
-$WindowsZip = Join-Path $RepoRoot 'dist\tailshot-windows-1.0.zip'
+$RepoManifest = Get-Content -Raw -LiteralPath (Join-Path $RepoRoot 'manifest.json') | ConvertFrom-Json
+$Version = $RepoManifest.version
+$ChromeZip = Join-Path $RepoRoot "dist\chrome-webstore\tailshot-chrome-webstore-$Version.zip"
+$WindowsZip = Join-Path $RepoRoot "dist\tailshot-windows-$Version.zip"
 $PromoImage = Join-Path $RepoRoot 'store-assets\chrome-webstore\small-promo-440x280.png'
-$Screenshot = Join-Path $RepoRoot 'store-assets\chrome-webstore\screenshot-1280x800.png'
+$Screenshot = Join-Path $RepoRoot 'store-assets\chrome-webstore\screenshot-flow-1280x800.png'
 $DevicePickerScreenshot = Join-Path $RepoRoot 'store-assets\chrome-webstore\screenshot-device-picker-1280x800.png'
 $LocalTransferScreenshot = Join-Path $RepoRoot 'store-assets\chrome-webstore\screenshot-local-transfer-1280x800.png'
 $PrivacyHtml = Join-Path $RepoRoot 'docs\privacy.html'
@@ -127,6 +129,12 @@ Assert-ImageSize -Path $PromoImage -Width 440 -Height 280
 Assert-ImageSize -Path $Screenshot -Width 1280 -Height 800
 Assert-ImageSize -Path $DevicePickerScreenshot -Width 1280 -Height 800
 Assert-ImageSize -Path $LocalTransferScreenshot -Width 1280 -Height 800
+
+foreach ($iconSize in @(16, 32, 48, 128)) {
+	$iconPath = Join-Path $RepoRoot "icons\icon$iconSize.png"
+	Assert-File -Path $iconPath
+	Assert-ImageSize -Path $iconPath -Width $iconSize -Height $iconSize
+}
 
 Assert-ZipEntries -Path $ChromeZip -Expected @(
 	'background.js',

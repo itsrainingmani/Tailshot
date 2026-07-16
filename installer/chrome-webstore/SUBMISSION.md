@@ -7,7 +7,7 @@ This file is a dashboard handoff for Tailshot's Chrome Web Store listing.
 Upload this zip in the Package section:
 
 ```text
-dist\chrome-webstore\tailshot-chrome-webstore-1.0.zip
+dist\chrome-webstore\tailshot-chrome-webstore-1.1.zip
 ```
 
 Build all release artifacts with:
@@ -27,7 +27,7 @@ Validate the release artifacts before uploading:
 Upload these listing assets:
 
 ```text
-store-assets\chrome-webstore\screenshot-1280x800.png
+store-assets\chrome-webstore\screenshot-flow-1280x800.png
 store-assets\chrome-webstore\screenshot-device-picker-1280x800.png
 store-assets\chrome-webstore\screenshot-local-transfer-1280x800.png
 store-assets\chrome-webstore\small-promo-440x280.png

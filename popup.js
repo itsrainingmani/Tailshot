@@ -5,42 +5,62 @@ const imageUrl = urlParams.get('imageUrl');
 // DOM elements
 const statusEl = document.getElementById('status');
 const filenameEl = document.getElementById('filename');
+const filemetaEl = document.getElementById('filemeta');
+const fileThumbEl = document.getElementById('file-thumb');
 const deviceListEl = document.getElementById('device-list');
+const headerDotEl = document.getElementById('header-dot');
+const headerTextEl = document.getElementById('header-text');
+const cancelEl = document.getElementById('cancel');
 
-// OS Icons - Placeholders for Lucide SVG icons
-const OS_ICONS = {
-	windows: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-monitor-icon lucide-monitor"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>`,
-	macos: `
-		<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-laptop-icon lucide-laptop"><path d="M18 5a2 2 0 0 1 2 2v8.526a2 2 0 0 0 .212.897l1.068 2.127a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45l1.068-2.127A2 2 0 0 0 4 15.526V7a2 2 0 0 1 2-2z"/><path d="M20.054 15.987H3.946"/></svg>
-	`,
-	linux: `
-		<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-server-icon lucide-server"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>
-	`,
-	android: `
-		<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone-icon lucide-phone"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg>
-	`,
-	ios: `
-		<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-smartphone-icon lucide-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
-	`,
-	default: `
-		<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-laptop-icon lucide-laptop"><path d="M18 5a2 2 0 0 1 2 2v8.526a2 2 0 0 0 .212.897l1.068 2.127a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45l1.068-2.127A2 2 0 0 0 4 15.526V7a2 2 0 0 1 2-2z"/><path d="M20.054 15.987H3.946"/></svg>
-	`,
+// Lucide SVG icons
+const ICON_LAPTOP = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-laptop-icon lucide-laptop"><path d="M18 5a2 2 0 0 1 2 2v8.526a2 2 0 0 0 .212.897l1.068 2.127a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45l1.068-2.127A2 2 0 0 0 4 15.526V7a2 2 0 0 1 2-2z"/><path d="M20.054 15.987H3.946"/></svg>`;
+const ICON_MONITOR = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-monitor-icon lucide-monitor"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>`;
+const ICON_SERVER = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-server-icon lucide-server"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>`;
+const ICON_SMARTPHONE = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-smartphone-icon lucide-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>`;
+
+// One matcher drives both the icon and the visible label for a device OS
+const OS_META = {
+	windows: { icon: ICON_MONITOR, label: 'Windows' },
+	macos: { icon: ICON_LAPTOP, label: 'macOS' },
+	linux: { icon: ICON_SERVER, label: 'Linux' },
+	android: { icon: ICON_SMARTPHONE, label: 'Android' },
+	ios: { icon: ICON_SMARTPHONE, label: 'iOS' },
 };
+
+function getOSMeta(os) {
+	if (os) {
+		for (const [key, meta] of Object.entries(OS_META)) {
+			if (os.includes(key)) return meta;
+		}
+	}
+	return {
+		icon: ICON_LAPTOP,
+		label: os ? os.charAt(0).toUpperCase() + os.slice(1) : 'Device',
+	};
+}
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+	cancelEl.onclick = () => window.close();
+
 	if (!imageUrl) {
+		setHeaderStatus('No image', false);
 		showStatus('No image found', 'error');
 		return;
 	}
 
-	filenameEl.textContent = getFileName(imageUrl);
+	const filename = getFileName(imageUrl);
+	filenameEl.textContent = filename;
+	filenameEl.title = filename;
+	filemetaEl.textContent = getFileMeta(imageUrl, filename);
+	loadThumbnail(imageUrl);
 	loadDevices();
 });
 
 // Load and display devices
 async function loadDevices() {
-	showStatus('Loading devices...');
+	setHeaderStatus('Connecting…', false);
+	showStatus('Loading devices…');
 
 	try {
 		const response = await sendRuntimeMessage({
@@ -48,11 +68,14 @@ async function loadDevices() {
 		});
 
 		if (!response?.success) {
+			setHeaderStatus('Offline', false);
 			showStatus(`Error: ${response?.error || 'No response from extension'}`, 'error');
 			return;
 		}
 
 		const devices = response.data || [];
+
+		setHeaderStatus('Connected', true);
 
 		if (devices.length === 0) {
 			showStatus('No Taildrop devices found', 'error');
@@ -62,7 +85,9 @@ async function loadDevices() {
 		displayDevices(devices);
 		statusEl.style.display = 'none';
 	} catch (error) {
-		showStatus('Failed to load devices', 'error');
+		console.error('Failed to load devices', error);
+		setHeaderStatus('Offline', false);
+		showStatus(`Failed to load devices: ${error.message || error}`, 'error');
 	}
 }
 
@@ -70,7 +95,11 @@ async function loadDevices() {
 function displayDevices(devices) {
 	deviceListEl.innerHTML = '';
 
-	devices.forEach((device) => {
+	const sorted = [...devices].sort(
+		(a, b) => Number(Boolean(b.online)) - Number(Boolean(a.online))
+	);
+
+	sorted.forEach((device) => {
 		const deviceEl = document.createElement('div');
 		deviceEl.className = 'device-item';
 		if (!device.online) {
@@ -78,43 +107,74 @@ function displayDevices(devices) {
 			deviceEl.title = 'Tailscale reports this device as offline; Taildrop will still try to send.';
 		}
 
-		const statusEl = document.createElement('div');
-		statusEl.className = 'device-status';
+		const osMeta = getOSMeta(device.os);
+
+		const osIconEl = document.createElement('div');
+		osIconEl.className = 'device-os-icon';
+		osIconEl.innerHTML = osMeta.icon;
+
+		const bodyEl = document.createElement('div');
+		bodyEl.className = 'device-body';
+
+		const titleRowEl = document.createElement('div');
+		titleRowEl.className = 'device-title-row';
 
 		const nameEl = document.createElement('div');
 		nameEl.className = 'device-name';
 		nameEl.textContent = device.name;
+		titleRowEl.appendChild(nameEl);
 
-		const osIconEl = document.createElement('div');
-		osIconEl.className = 'device-os-icon';
-		osIconEl.innerHTML = getOSIcon(device.os);
+		const subEl = document.createElement('div');
+		subEl.className = 'device-sub';
+		subEl.textContent = `${osMeta.label} · ${device.online ? 'online' : 'offline'}`;
 
-		deviceEl.append(statusEl, nameEl, osIconEl);
+		bodyEl.append(titleRowEl, subEl);
 
-		deviceEl.onclick = () => sendToDevice(device);
+		const dotEl = document.createElement('div');
+		dotEl.className = 'device-status';
+		if (device.online) {
+			dotEl.classList.add('online');
+		}
+
+		deviceEl.append(osIconEl, bodyEl, dotEl);
+
+		deviceEl.onclick = () => sendToDevice(device, deviceEl);
 		deviceListEl.appendChild(deviceEl);
 	});
 
-	deviceListEl.style.display = 'block';
+	deviceListEl.style.display = 'flex';
 }
 
-// Get OS icon based on device OS
-function getOSIcon(os) {
-	if (!os) return OS_ICONS.default;
+// Swap a device row between its idle layout and the sending/sent layout
+function setRowSending(deviceEl, stateText) {
+	deviceEl.classList.add('sending');
+	deviceEl.classList.remove('offline');
 
-	if (os.includes('windows')) return OS_ICONS.windows;
-	if (os.includes('macos')) return OS_ICONS.macos;
-	if (os.includes('linux')) return OS_ICONS.linux;
-	if (os.includes('android')) return OS_ICONS.android;
-	if (os.includes('ios')) return OS_ICONS.ios;
+	const bodyEl = deviceEl.querySelector('.device-body');
+	const titleRowEl = bodyEl.querySelector('.device-title-row');
+	deviceEl.querySelector('.device-status')?.remove();
+	bodyEl.querySelector('.device-sub')?.remove();
 
-	return OS_ICONS.default;
+	const stateEl = document.createElement('div');
+	stateEl.className = 'device-send-state';
+	stateEl.textContent = stateText;
+	titleRowEl.appendChild(stateEl);
+
+	const trackEl = document.createElement('div');
+	trackEl.className = 'progress-track';
+	const fillEl = document.createElement('div');
+	fillEl.className = 'progress-fill';
+	trackEl.appendChild(fillEl);
+	bodyEl.appendChild(trackEl);
 }
 
 // Send image to selected device
-async function sendToDevice(device) {
-	showStatus(`Sending to ${device.name}...`);
-	deviceListEl.style.display = 'none';
+async function sendToDevice(device, deviceEl) {
+	if (document.body.classList.contains('busy')) return;
+
+	document.body.classList.add('busy');
+	statusEl.style.display = 'none';
+	setRowSending(deviceEl, 'Sending…');
 
 	try {
 		await requestImageHostPermission(imageUrl);
@@ -126,18 +186,35 @@ async function sendToDevice(device) {
 		});
 
 		if (response?.success) {
-			showStatus('Sent successfully!', 'success');
-			setTimeout(() => window.close(), 1500);
-		} else {
-			showStatus(`Error: ${response?.error || 'No response from extension'}`, 'error');
+			deviceEl.classList.remove('sending');
+			deviceEl.classList.add('sent');
+			deviceEl.querySelector('.device-send-state').textContent = 'Sent';
 			setTimeout(() => {
-				statusEl.style.display = 'none';
-				deviceListEl.style.display = 'block';
-			}, 2000);
+				window.close();
+				// window.close() is ignored when the page wasn't script-opened
+				// (e.g. loaded as a regular tab) — unlock instead of staying stuck
+				setTimeout(() => {
+					document.body.classList.remove('busy');
+					loadDevices();
+				}, 400);
+			}, 1500);
+		} else {
+			showSendError(`Error: ${response?.error || 'No response from extension'}`);
 		}
 	} catch (error) {
-		showStatus(error.message || 'Failed to send image', 'error');
+		console.error('Failed to send image', error);
+		showSendError(error.message || 'Failed to send image');
 	}
+}
+
+// Show a send failure, then reload the device list with fresh state
+function showSendError(message) {
+	deviceListEl.style.display = 'none';
+	showStatus(message, 'error');
+	setTimeout(() => {
+		document.body.classList.remove('busy');
+		loadDevices();
+	}, 2000);
 }
 
 // Unified status display
@@ -145,6 +222,22 @@ function showStatus(message, type = 'loading') {
 	statusEl.textContent = message;
 	statusEl.className = `status ${type}`;
 	statusEl.style.display = 'block';
+}
+
+// Header connection indicator
+function setHeaderStatus(text, online) {
+	headerTextEl.textContent = text;
+	headerDotEl.className = online ? 'dot online' : 'dot';
+}
+
+// Show the actual image in the file card when it loads
+function loadThumbnail(url) {
+	const img = new Image();
+	img.onload = () => {
+		fileThumbEl.style.backgroundImage = `url("${url.replace(/"/g, '%22')}")`;
+		fileThumbEl.querySelector('span').style.display = 'none';
+	};
+	img.src = url;
 }
 
 async function requestImageHostPermission(url) {
@@ -199,4 +292,24 @@ function getFileName(url) {
 	} catch (e) {
 		return 'image.jpg';
 	}
+}
+
+function getFileMeta(url, filename) {
+	const parts = [];
+
+	const dot = filename.lastIndexOf('.');
+	if (dot > 0 && dot < filename.length - 1) {
+		parts.push(filename.substring(dot + 1).toLowerCase());
+	}
+
+	try {
+		const hostname = new URL(url).hostname;
+		if (hostname) {
+			parts.push(hostname);
+		}
+	} catch (e) {
+		console.warn('Could not parse image URL for meta line', e);
+	}
+
+	return parts.join(' · ') || 'image';
 }

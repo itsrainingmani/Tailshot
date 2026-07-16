@@ -13,7 +13,7 @@ installer\chrome-webstore\dashboard-handoff.html
 Upload:
 
 ```text
-dist\chrome-webstore\tailshot-chrome-webstore-1.0.zip
+dist\chrome-webstore\tailshot-chrome-webstore-1.1.zip
 ```
 
 ## 2. Store Listing
@@ -27,7 +27,7 @@ installer\chrome-webstore\SUBMISSION.md
 Upload:
 
 ```text
-store-assets\chrome-webstore\screenshot-1280x800.png
+store-assets\chrome-webstore\screenshot-flow-1280x800.png
 store-assets\chrome-webstore\screenshot-device-picker-1280x800.png
 store-assets\chrome-webstore\screenshot-local-transfer-1280x800.png
 store-assets\chrome-webstore\small-promo-440x280.png
@@ -98,7 +98,7 @@ Attach or reference:
 
 ```text
 installer\chrome-webstore\REVIEWER_TESTING.md
-dist\tailshot-windows-1.0.zip
+dist\tailshot-windows-1.1.zip
 ```
 
 Reviewer note:
