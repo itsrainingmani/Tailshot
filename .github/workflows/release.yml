@@ -116,6 +116,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Verify manifest version matches tag
+        shell: pwsh
+        run: |
+          $manifestVersion = (Get-Content manifest.json -Raw | ConvertFrom-Json).version
+          $tagVersion = $env:GITHUB_REF_NAME -replace '^v', ''
+          if ($manifestVersion -ne $tagVersion) {
+            throw "manifest.json version $manifestVersion does not match tag $tagVersion"
+          }
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
