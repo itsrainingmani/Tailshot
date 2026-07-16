@@ -7,8 +7,10 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
-$ChromeZip = Join-Path $RepoRoot 'dist\chrome-webstore\tailshot-chrome-webstore-1.0.zip'
-$WindowsZip = Join-Path $RepoRoot 'dist\tailshot-windows-1.0.zip'
+$RepoManifest = Get-Content -Raw -LiteralPath (Join-Path $RepoRoot 'manifest.json') | ConvertFrom-Json
+$Version = $RepoManifest.version
+$ChromeZip = Join-Path $RepoRoot "dist\chrome-webstore\tailshot-chrome-webstore-$Version.zip"
+$WindowsZip = Join-Path $RepoRoot "dist\tailshot-windows-$Version.zip"
 $PromoImage = Join-Path $RepoRoot 'store-assets\chrome-webstore\small-promo-440x280.png'
 $Screenshot = Join-Path $RepoRoot 'store-assets\chrome-webstore\screenshot-1280x800.png'
 $DevicePickerScreenshot = Join-Path $RepoRoot 'store-assets\chrome-webstore\screenshot-device-picker-1280x800.png'

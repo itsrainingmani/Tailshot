@@ -4,105 +4,248 @@
 <head>
   <meta charset="utf-8">
   <style>
+    :root {
+      --surface: #ffffff;
+      --border: #e4e7ec;
+      --divider: #eef1f4;
+      --text: #1a222c;
+      --text-secondary: #8b97a5;
+      --text-mono: #2a3542;
+      --chip-bg: #f5f7f9;
+      --thumb-stripe-a: #e6eaef;
+      --thumb-stripe-b: #f5f7f9;
+      --accent: #00b887;
+      --accent-text: #0e8f70;
+      --progress-track: #d4ede2;
+      --progress-fill: #00a37e;
+      --row-active-bg: #e9f8f2;
+      --row-active-border: #bfe9d9;
+      --row-hover: #f5f7f9;
+      --dot-offline: #c3cad2;
+      --error: #d64545;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --surface: #141a23;
+        --border: #262f3c;
+        --divider: #1e2731;
+        --text: #edf2f7;
+        --text-secondary: #93a0ae;
+        --text-mono: #dfe6ee;
+        --chip-bg: #1b2330;
+        --thumb-stripe-a: #242e3c;
+        --thumb-stripe-b: #1b2330;
+        --accent: #2fd79f;
+        --accent-text: #2fd79f;
+        --progress-track: #24413a;
+        --progress-fill: #00b887;
+        --row-active-bg: rgba(0, 184, 135, 0.09);
+        --row-active-border: #1f4a3c;
+        --row-hover: #1b2330;
+        --dot-offline: #3a4550;
+        --error: #f27d7d;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
     body {
-      width: auto;
-      padding: 0;
-      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      height: 100%;
+    }
+
+    body {
       margin: 0;
-      background: #000000;
-      color: #e0e0e0;
-      border: 2px solid #333;
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      color: var(--text);
+      font-family: 'Instrument Sans', -apple-system, 'Segoe UI', system-ui, sans-serif;
+      font-size: 13px;
+    }
+
+    .mono {
+      font-family: 'Geist Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
     }
 
     .header {
       display: flex;
       align-items: center;
-      padding: 12px 16px;
-      justify-content: center;
-      background: #000;
-      border-bottom: 1px solid #333;
+      gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--divider);
+      flex-shrink: 0;
     }
 
     .header img {
-      width: 16px;
-      height: 16px;
-      margin-right: 8px;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      flex-shrink: 0;
     }
 
-    .header h2 {
+    .header h1 {
       margin: 0;
-      font-size: 12px;
-      color: #00ff00;
+      font-size: 14px;
       font-weight: 600;
+      color: var(--text);
+    }
+
+    .header-status {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--dot-offline);
+      flex-shrink: 0;
+    }
+
+    .dot.online {
+      background: var(--accent);
+    }
+
+    .file-card-wrap {
+      padding: 14px 16px 0;
+      flex-shrink: 0;
+    }
+
+    .file-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--chip-bg);
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .file-thumb {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: repeating-linear-gradient(45deg, var(--thumb-stripe-a) 0 4px, var(--thumb-stripe-b) 4px 8px);
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .file-thumb span {
+      font-family: 'Geist Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+      font-size: 8px;
+      color: var(--text-secondary);
+    }
+
+    .file-meta {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .file-name {
+      font-family: 'Geist Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+      font-size: 12px;
+      color: var(--text-mono);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .section-label {
+      padding: 14px 16px 6px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .image-info {
-      background: #000000;
-      padding: 12px 16px;
-      border-bottom: 1px solid #333;
-      font-size: 11px;
-      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    }
-
-    .image-info>strong {
-      color: #00ff00;
-      font-size: 11px;
-    }
-
-    #filename {
-      color: #e0e0e0;
-      font-weight: 400;
-      font-size: 11px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
     }
 
     .status {
+      display: none;
+      padding: 18px 16px;
+      font-size: 12px;
+      color: var(--text-secondary);
       text-align: center;
-      padding: 16px;
-      border-bottom: 1px solid #333;
-      font-size: 11px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .status.loading {
-      background: #1a1a1a;
-      color: #ffff00;
     }
 
     .status.error {
-      background: #1a1a1a;
-      color: #ff4444;
+      color: var(--error);
     }
 
-    .status.success {
-      background: #1a1a1a;
-      color: #00ff00;
+    #device-list {
+      display: none;
+      flex-direction: column;
+      padding: 0 8px 8px;
+      overflow-y: auto;
+      flex: 1;
     }
 
     .device-item {
       display: flex;
       align-items: center;
-      padding: 12px 16px;
-      border-bottom: 1px solid #333;
+      gap: 12px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid transparent;
       cursor: pointer;
-      transition: background-color 0.1s;
-      background: #1a1a1a;
+      flex-shrink: 0;
     }
 
-    .device-item:last-child {
-      border-bottom: none;
+    .device-item:hover {
+      background: var(--row-hover);
+    }
+
+    .device-item.offline {
+      opacity: 0.5;
+    }
+
+    .device-item.sending,
+    .device-item.sent {
+      background: var(--row-active-bg);
+      border-color: var(--row-active-border);
+      cursor: default;
+    }
+
+    .device-item.sending:hover,
+    .device-item.sent:hover {
+      background: var(--row-active-bg);
+    }
+
+    body.busy .device-item:not(.sending):not(.sent) {
+      pointer-events: none;
+      opacity: 0.4;
     }
 
     .device-os-icon {
-      width: 16px;
-      height: 16px;
-      margin-left: auto;
-      color: #666;
+      width: 18px;
+      height: 18px;
+      color: var(--text-secondary);
       flex-shrink: 0;
-      transition: color 0.1s;
+    }
+
+    .device-item.sending .device-os-icon,
+    .device-item.sent .device-os-icon {
+      color: var(--accent-text);
     }
 
     .device-os-icon svg {
@@ -110,79 +253,178 @@
       height: 100%;
     }
 
-    .device-item:hover {
-      background-color: #2a2a2a;
+    .device-body {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      flex: 1;
+      min-width: 0;
     }
 
-    .device-item:hover>.device-os-icon {
-      color: #00ff00;
+    .device-item.sending .device-body,
+    .device-item.sent .device-body {
+      gap: 5px;
     }
 
-    .device-item:hover>.device-name {
-      color: #00ff00;
-    }
-
-    .device-item.offline {
-      opacity: 0.6;
-    }
-
-    .device-item.offline .device-status {
-      background-color: #666;
-    }
-
-    .device-status {
-      width: 6px;
-      height: 6px;
-      background-color: #00ff00;
-      margin-right: 12px;
-      flex-shrink: 0;
+    .device-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .device-name {
-      font-weight: 500;
-      color: #e0e0e0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .device-send-state {
+      margin-left: auto;
       font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      transition: color 0.1s;
+      color: var(--accent-text);
+      flex-shrink: 0;
     }
 
-    #device-list {
-      display: none;
+    .device-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
     }
 
-    /* Terminal-like scrollbar */
+    .device-status {
+      margin-left: auto;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--dot-offline);
+      flex-shrink: 0;
+    }
+
+    .device-status.online {
+      background: var(--accent);
+    }
+
+    .progress-track {
+      height: 4px;
+      border-radius: 2px;
+      background: var(--progress-track);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      position: absolute;
+      left: -36%;
+      width: 36%;
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, transparent, var(--progress-fill), transparent);
+      animation: indeterminate 1.2s ease-in-out infinite;
+    }
+
+    .device-item.sent .progress-fill {
+      position: static;
+      width: 100%;
+      background: var(--progress-fill);
+      animation: none;
+    }
+
+    @keyframes indeterminate {
+      from {
+        left: -36%;
+      }
+
+      to {
+        left: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .progress-fill {
+        animation: none;
+        left: 0;
+        width: 100%;
+        opacity: 0.6;
+      }
+    }
+
+    .footer {
+      border-top: 1px solid var(--divider);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      margin-top: auto;
+    }
+
+    .footer-note {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    #cancel {
+      margin-left: auto;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-text);
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+    }
+
     ::-webkit-scrollbar {
       width: 8px;
     }
 
     ::-webkit-scrollbar-track {
-      background: #1a1a1a;
+      background: transparent;
     }
 
     ::-webkit-scrollbar-thumb {
-      background: #333;
+      background: var(--border);
+      border-radius: 4px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-      background: #555;
+      background: var(--text-secondary);
     }
   </style>
 </head>
 
 <body>
   <div class="header">
-    <img src="icons/icon128.png" alt="Tailscale">
-    <h2>TailShot</h2>
+    <img src="icons/icon48.png" alt="Tailshot">
+    <h1>Tailshot</h1>
+    <div class="header-status">
+      <span id="header-dot" class="dot"></span>
+      <span id="header-text">Connecting…</span>
+    </div>
   </div>
 
-  <div class="image-info">
-    <strong>FILE:</strong> <span id="filename"></span>
+  <div class="file-card-wrap">
+    <div class="file-card">
+      <div id="file-thumb" class="file-thumb"><span>IMG</span></div>
+      <div class="file-meta">
+        <div id="filename" class="file-name"></div>
+        <div id="filemeta" class="file-sub"></div>
+      </div>
+    </div>
   </div>
 
-  <div id="status" class="status loading">INITIALIZING...</div>
+  <div class="section-label">Send to</div>
+
+  <div id="status" class="status"></div>
 
   <div id="device-list"></div>
+
+  <div class="footer">
+    <div class="footer-note">Sent directly over your tailnet</div>
+    <button id="cancel" type="button">Cancel</button>
+  </div>
 
   <script src="popup.js"></script>
 </body>

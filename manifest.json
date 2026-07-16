@@ -2,7 +2,7 @@
 	"manifest_version": 3,
 	"name": "Tailshot",
 	"short_name": "Tailshot",
-	"version": "1.0",
+	"version": "1.1",
 	"description": "Send images to your Tailscale devices",
 	"homepage_url": "https://github.com/itsrainingmani/Tailshot",
 	"permissions": ["contextMenus", "nativeMessaging"],

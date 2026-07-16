@@ -7,7 +7,7 @@ This file is a dashboard handoff for Tailshot's Chrome Web Store listing.
 Upload this zip in the Package section:
 
 ```text
-dist\chrome-webstore\tailshot-chrome-webstore-1.0.zip
+dist\chrome-webstore\tailshot-chrome-webstore-1.1.zip
 ```
 
 Build all release artifacts with:

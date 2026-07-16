@@ -13,7 +13,7 @@ From the repository root:
 The upload package is written to:
 
 ```text
-dist\chrome-webstore\tailshot-chrome-webstore-1.0.zip
+dist\chrome-webstore\tailshot-chrome-webstore-1.1.zip
 ```
 
 To rebuild and validate all Chrome Web Store release artifacts:
@@ -112,7 +112,7 @@ To test Tailshot, install Tailscale on the test machine, sign in, and enable Tai
 
 1. Open the Chrome Web Store Developer Dashboard.
 2. Click "Add new item".
-3. Upload `dist\chrome-webstore\tailshot-chrome-webstore-1.0.zip`.
+3. Upload `dist\chrome-webstore\tailshot-chrome-webstore-1.1.zip`.
 4. Fill Store Listing, Privacy, Distribution, and Test instructions.
 5. Upload the required listing images from `store-assets\chrome-webstore`.
 6. Submit for review.

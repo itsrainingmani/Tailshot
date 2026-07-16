@@ -13,7 +13,7 @@ installer\chrome-webstore\dashboard-handoff.html
 Upload:
 
 ```text
-dist\chrome-webstore\tailshot-chrome-webstore-1.0.zip
+dist\chrome-webstore\tailshot-chrome-webstore-1.1.zip
 ```
 
 ## 2. Store Listing
@@ -98,7 +98,7 @@ Attach or reference:
 
 ```text
 installer\chrome-webstore\REVIEWER_TESTING.md
-dist\tailshot-windows-1.0.zip
+dist\tailshot-windows-1.1.zip
 ```
 
 Reviewer note:
